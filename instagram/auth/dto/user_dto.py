@@ -33,13 +33,15 @@ class UserStoryDTO:
 
 
 class HashtagDTO:
-    def __init__(self, story_id, story_created_at, hashtag):
+    def __init__(self, username, story_id, story_created_at, hashtag):
+        self.username = username
         self.story_id = story_id
         self.story_created_at = story_created_at
         self.hashtag = hashtag
 
     def to_dict(self):
         return {
+            "username": self.username,
             'story_id': self.story_id,
             'story_created_at': self.story_created_at,
             'hashtag': self.hashtag

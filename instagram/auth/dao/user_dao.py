@@ -10,6 +10,14 @@ class UserDAO:
         cursor.close()
         return users
 
+    def get_users_id(self):
+        cursor = self.db.cursor()
+        query = "SELECT user_id FROM User"
+        cursor.execute(query)
+        ids = cursor.fetchall()
+        cursor.close()
+        return ids
+
     def get_user_stories(self, user_id):
         cursor = self.db.cursor()
         query = (f"""SELECT Story.story_id, Story.created_at, User.username,
@@ -22,9 +30,10 @@ class UserDAO:
         cursor.close()
         return stories
 
-    def get_hashtags_from_user_stories(self, user_id):
+    def get_hashtags_from_user_stories(self):
         cursor = self.db.cursor()
         query = f"""SELECT 
+                        User.username,
                         Story.story_id,
                         Story.created_at AS story_created_at,
                         Hashtag.tag AS hashtag
@@ -36,8 +45,6 @@ class UserDAO:
                         StoryHashtag ON Story.story_id = StoryHashtag.story_id
                     JOIN 
                         Hashtag ON StoryHashtag.hashtag_id = Hashtag.hashtag_id
-                    WHERE 
-                        User.user_id = {user_id}
                     ORDER BY 
                        Story.story_id, Hashtag.tag;
                  """
@@ -49,12 +56,14 @@ class UserDAO:
     def insert_user(self, username, email, password):
         try:
             cursor = self.db.cursor()
-            query = (f"INSERT INTO User (username, email, password) VALUES ("
-                     f"{username}, {email}, {password})")
+            print(username, email, password)
+            query = (f"""INSERT INTO User (username, email, password) VALUES ("{username}","{email}","{password}")""")
+            print(query)
             cursor.execute(query)
             self.db.commit()
             cursor.close()
         except Exception as e:
+            cursor.close()
             self.db.rollback()
             raise e
 

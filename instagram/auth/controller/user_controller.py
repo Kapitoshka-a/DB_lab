@@ -28,25 +28,30 @@ def get_users():
 @user_bp.route('/users', methods=['POST'])
 def create_user():
     data = request.json
-    username = data['username']
-    email = data['email']
-    password = data['password']
+    username = str(data['username'])
+    email = str(data['email'])
+    password = str(data['password'])
     user_service.create_user(username, email, password)
     return jsonify({'message': 'User created successfully!'}), 201
 
 
-@user_bp.route('/users/<int:user_id>/stories', methods=['GET'])
-def get_user_stories(user_id):
-    stories = user_service.get_user_stories(user_id)
-    user_story_dtos = [UserStoryDTO(story[0], story[1], story[2], story[3], story[4], story[5]).to_dict() for story in
+@user_bp.route('/users/stories', methods=['GET'])
+def get_user_stories():
+    user_ids = user_service.get_users_ids()
+    stories = []
+    for user_id in user_ids:
+        stories = user_service.get_user_stories(user_id)
+        user_story_dtos = [UserStoryDTO(story[0], story[1], story[2], story[3], story[4], story[5]).to_dict() for story in
                        stories]
-    return jsonify(user_story_dtos)
+        stories.append(user_story_dtos)
+
+    return jsonify(stories)
 
 
-@user_bp.route('/users/<int:user_id>/hashtags', methods=['GET'])
-def get_user_hashtags(user_id):
-    hashtags = user_service.get_hashtags_from_user_stories(user_id)
-    hashtag_dtos = [HashtagDTO(hashtag[0], hashtag[1], hashtag[2]).to_dict() for hashtag in hashtags]
+@user_bp.route('/users/hashtags', methods=['GET'])
+def get_user_hashtags():
+    hashtags = user_service.get_hashtags_from_user_stories()
+    hashtag_dtos = [HashtagDTO(hashtag[0], hashtag[1], hashtag[2], hashtag[3]).to_dict() for hashtag in hashtags]
     return jsonify(hashtag_dtos)
 
 
