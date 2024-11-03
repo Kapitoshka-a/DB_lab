@@ -37,15 +37,17 @@ def create_user():
 
 @user_bp.route('/users/stories', methods=['GET'])
 def get_user_stories():
-    user_ids = user_service.get_users_ids()
-    stories = []
+    ids = user_service.get_users_ids()
+    user_ids = [item[0] for item in ids]
+    print(user_ids)
+    stories_by_user = []
     for user_id in user_ids:
         stories = user_service.get_user_stories(user_id)
         user_story_dtos = [UserStoryDTO(story[0], story[1], story[2], story[3], story[4], story[5]).to_dict() for story in
                        stories]
-        stories.append(user_story_dtos)
+        stories_by_user.append(user_story_dtos)
 
-    return jsonify(stories)
+    return jsonify(stories_by_user)
 
 
 @user_bp.route('/users/hashtags', methods=['GET'])
