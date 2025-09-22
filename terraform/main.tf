@@ -431,9 +431,9 @@ resource "aws_cloudwatch_metric_alarm" "scale_out_alarm" {
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = "60"
+  period              = "10" #60
   statistic           = "Average"
-  threshold           = "75"
+  threshold           = "10" #75
   alarm_description   = "Alarm for scaling out ECS service"
   dimensions = {
     ClusterName = aws_ecs_cluster.my_cluster.name
