@@ -1,7 +1,7 @@
 import pymysql
 from contextlib import contextmanager
 
-from base.config import config
+from instagram.base.config import config
 
 
 @contextmanager
