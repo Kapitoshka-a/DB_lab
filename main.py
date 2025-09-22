@@ -1,5 +1,3 @@
-import os
-
 from flasgger import Swagger
 from flask import Flask
 from instagram.route import init_routes
