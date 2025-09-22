@@ -1,4 +1,4 @@
-from instagram.auth.dao.user_dao import UserDAO
+from instagram.dao.user_dao import UserDAO
 
 class UserService:
     def __init__(self, user_dao: UserDAO):

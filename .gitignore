@@ -1,0 +1,67 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pycache/
+*.env
+*.venv/
+.venv/
+env/
+ENV/
+venv/
+ENV.bak/
+*.egg-info/
+dist/
+build/
+*.sqlite3
+
+# ======================
+# Terraform
+# ======================
+# Local Terraform files
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+# Ignore sensitive terraform files
+terraform.tfvars
+*.auto.tfvars
+
+# ======================
+# Docker
+# ======================
+# Docker files
+*.log
+*.pid
+*.sock
+docker-compose.override.yml
+*.env
+
+# ======================
+# VSCode / IDEs
+# ======================
+.vscode/
+.idea/
+*.iml
+
+# ======================
+# OS / System
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# GitHub Actions
+# ======================
+*.yml.lock
+
+# ======================
+# Logs
+# ======================
+*.log
+logs/

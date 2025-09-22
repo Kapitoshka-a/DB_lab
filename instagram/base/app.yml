@@ -1,5 +1,5 @@
 db:
   host: "localhost"
   user: "root"
-  password: "password"
+  password: "password" #inst20sep
   database: "instagramdb"

@@ -1,5 +1,3 @@
-
-
 class CommentService:
     def __init__(self, comment_dao):
         self.comment_dao = comment_dao

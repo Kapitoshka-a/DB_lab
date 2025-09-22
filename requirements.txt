@@ -1,5 +1,6 @@
-Flask==2.1.1
-PyMySQL==1.0.2
-SQLAlchemy==1.4.31
-
-PyYAML~=6.0.2
+Flask==3.1.2
+PyMySQL==1.1.2
+PyYAML==6.0.2
+SQLAlchemy==2.0.43
+pydantic-settings==2.3.4
+flasgger==0.9.7.1
