@@ -1,125 +1,113 @@
+from base.connector import get_connection
+
+
 class UserDAO:
-    def __init__(self, db):
-        self.db = db
-
-    def get_all_users(self):
-        cursor = self.db.cursor()
-        query = "SELECT username, email, created_at FROM User"
-        cursor.execute(query)
-        users = cursor.fetchall()
-        cursor.close()
-        return users
-
-    def get_users_id(self):
-        cursor = self.db.cursor()
-        query = "SELECT user_id FROM User"
-        cursor.execute(query)
-        ids = cursor.fetchall()
-        cursor.close()
-        return ids
-
-    def get_user_stories(self, user_id):
-        cursor = self.db.cursor()
-        query = (f"""SELECT Story.story_id, Story.created_at, User.username,
-                     User.email, Media.media_type, Media.media_url FROM Story
-                     INNER JOIN User on User.user_id = Story.user_id
-                     INNER JOIN Media on Media.media_id = Story.media_id
-                     WHERE Story.user_id = {user_id}""")
-        cursor.execute(query)
-        stories = cursor.fetchall()
-        cursor.close()
-        return stories
-
-    def get_hashtags_from_user_stories(self):
-        cursor = self.db.cursor()
-        query = f"""SELECT 
-                        User.username,
-                        Story.story_id,
-                        Story.created_at AS story_created_at,
-                        Hashtag.tag AS hashtag
-                    FROM 
-                        Story
-                    JOIN 
-                        User on Story.user_id = User.user_id
-                    JOIN 
-                        StoryHashtag ON Story.story_id = StoryHashtag.story_id
-                    JOIN 
-                        Hashtag ON StoryHashtag.hashtag_id = Hashtag.hashtag_id
-                    ORDER BY 
-                       Story.story_id, Hashtag.tag;
-                 """
-        cursor.execute(query)
-        hashtags = cursor.fetchall()
-        cursor.close()
-        return hashtags
-
-    def insert_user(self, username, email, password):
-        try:
-            cursor = self.db.cursor()
-            print(username, email, password)
-            query = (f"""INSERT INTO User (username, email, password) VALUES ("{username}","{email}","{password}")""")
-            print(query)
+    @staticmethod
+    def get_all_users():
+        query = "SELECT user_id, username, email, created_at FROM User"
+        with get_connection() as conn, conn.cursor() as cursor:
             cursor.execute(query)
-            self.db.commit()
-            cursor.close()
-        except Exception as e:
-            cursor.close()
-            self.db.rollback()
-            raise e
+            return cursor.fetchall()
 
+    @staticmethod
+    def get_users_id():
+        query = "SELECT user_id FROM User"
+        with get_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(query)
+            return cursor.fetchall()
+
+    @staticmethod
+    def get_user_stories(self, user_id):
+        query = """
+            SELECT Story.story_id, Story.created_at, User.username,
+                   User.email, Media.media_type, Media.media_url
+            FROM Story
+            INNER JOIN User ON User.user_id = Story.user_id
+            INNER JOIN Media ON Media.media_id = Story.media_id
+            WHERE Story.user_id = %s
+        """
+        with get_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(query, (user_id,))
+            return cursor.fetchall()
+
+    @staticmethod
+    def get_hashtags_from_user_stories(self):
+        query = """
+            SELECT 
+                User.username,
+                Story.story_id,
+                Story.created_at AS story_created_at,
+                Hashtag.tag AS hashtag
+            FROM Story
+            JOIN User ON Story.user_id = User.user_id
+            JOIN StoryHashtag ON Story.story_id = StoryHashtag.story_id
+            JOIN Hashtag ON StoryHashtag.hashtag_id = Hashtag.hashtag_id
+            ORDER BY Story.story_id, Hashtag.tag
+        """
+        with get_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(query)
+            return cursor.fetchall()
+
+    @staticmethod
+    def insert_user(self, username, email, password):
+        query = "INSERT INTO User (username, email, password) VALUES (%s, %s, %s)"
+        with get_connection() as conn, conn.cursor() as cursor:
+            try:
+                cursor.execute(query, (username, email, password))
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+    @staticmethod
     def update_user(self, user_id, username=None, email=None, password=None):
-        try:
-            cursor = self.db.cursor()
-            query = "UPDATE User SET "
-            fields = []
-            values = []
+        fields, values = [], []
 
-            if username:
-                fields.append("username = %s")
-                values.append(username)
+        if username:
+            fields.append("username = %s")
+            values.append(username)
+        if email:
+            fields.append("email = %s")
+            values.append(email)
+        if password:
+            fields.append("password = %s")
+            values.append(password)
 
-            if email:
-                fields.append("email = %s")
-                values.append(email)
+        if not fields:
+            return  # nothing to update
 
-            if password:
-                fields.append("password = %s")
-                values.append(password)
+        query = f"UPDATE User SET {', '.join(fields)} WHERE user_id = %s"
+        values.append(user_id)
 
-            if fields:
-                query += ", ".join(fields) + " WHERE user_id = %s"
-                values.append(user_id)
+        with get_connection() as conn, conn.cursor() as cursor:
+            try:
                 cursor.execute(query, tuple(values))
-                self.db.commit()
-            cursor.close()
-        except Exception as e:
-            self.db.rollback()
-            raise e
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
 
+    @staticmethod
     def delete_story(self, user_id, story_id):
         try:
-            cursor = self.db.cursor()
-            cursor.execute(f"SELECT user_id FROM Story WHERE story_id = {user_id}")
-            result = cursor.fetchone()
+            with get_connection() as conn, conn.cursor() as cursor:
+                cursor.execute("SELECT user_id FROM Story WHERE story_id = %s", (story_id,))
+                result = cursor.fetchone()
 
-            if result is None:
-                return {'message': 'Story not found.'}, 404
+                if result is None:
+                    return {'message': 'Story not found.'}, 404
 
-            story_user_id = result[0]
+                story_user_id = result["user_id"]
 
-            if story_user_id != user_id:
-                return {'message': 'You are not authorized to delete this story.'}, 403
+                if story_user_id != user_id:
+                    return {'message': 'You are not authorized to delete this story.'}, 403
 
-            cursor.execute(f"DELETE FROM Feed WHERE story_id = {story_id}")
-            cursor.execute(f"DELETE FROM Reaction WHERE story_id = {story_id}")
+                cursor.execute("DELETE FROM Feed WHERE story_id = %s", (story_id,))
+                cursor.execute("DELETE FROM Reaction WHERE story_id = %s", (story_id,))
+                cursor.execute("DELETE FROM Story WHERE story_id = %s", (story_id,))
+                conn.commit()
 
-            query = f"DELETE FROM Story WHERE story_id = {story_id}"
-            cursor.execute(query)
-            self.db.commit()
-            cursor.close()
+                return {'message': 'Story deleted successfully!'}, 204
 
-            return {'message': 'Story deleted successfully!'}, 204
-
-        except Exception as e:
-            self.db.rollback()
-            raise e
+        except Exception:
+            conn.rollback()
+            raise

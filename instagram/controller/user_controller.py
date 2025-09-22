@@ -1,21 +1,11 @@
-import pymysql
 from flask import Blueprint, request, jsonify
-
-from instagram.base.config import config
 from instagram.dao.user_dao import UserDAO
 from instagram.dto.user_dto import UserDTO, UserStoryDTO, HashtagDTO
 from instagram.service.user_service import UserService
 user_bp = Blueprint('user', __name__)
 
-db = pymysql.connect(
-    host=config.DB_HOST,
-    user=config.DB_USER,
-    password=config.DB_PASSWORD,
-    database=config.DB_NAME,
-    port=config.DB_PORT
-)
 
-user_dao = UserDAO(db)
+user_dao = UserDAO()
 user_service = UserService(user_dao)
 
 @user_bp.route('/users', methods=['GET'])
