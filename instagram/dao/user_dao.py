@@ -1,4 +1,4 @@
-from base.connector import get_connection
+from instagram.base.connector import get_connection
 
 
 class UserDAO:
