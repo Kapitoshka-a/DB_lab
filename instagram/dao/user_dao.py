@@ -17,7 +17,7 @@ class UserDAO:
             return cursor.fetchall()
 
     @staticmethod
-    def get_user_stories(self, user_id):
+    def get_user_stories(user_id):
         query = """
             SELECT Story.story_id, Story.created_at, User.username,
                    User.email, Media.media_type, Media.media_url
@@ -31,7 +31,7 @@ class UserDAO:
             return cursor.fetchall()
 
     @staticmethod
-    def get_hashtags_from_user_stories(self):
+    def get_hashtags_from_user_stories():
         query = """
             SELECT 
                 User.username,
@@ -49,7 +49,7 @@ class UserDAO:
             return cursor.fetchall()
 
     @staticmethod
-    def insert_user(self, username, email, password):
+    def insert_user(username, email, password):
         query = "INSERT INTO User (username, email, password) VALUES (%s, %s, %s)"
         with get_connection() as conn, conn.cursor() as cursor:
             try:
@@ -59,7 +59,7 @@ class UserDAO:
                 conn.rollback()
                 raise
     @staticmethod
-    def update_user(self, user_id, username=None, email=None, password=None):
+    def update_user(user_id, username=None, email=None, password=None):
         fields, values = [], []
 
         if username:
@@ -87,7 +87,7 @@ class UserDAO:
                 raise
 
     @staticmethod
-    def delete_story(self, user_id, story_id):
+    def delete_story(user_id, story_id):
         try:
             with get_connection() as conn, conn.cursor() as cursor:
                 cursor.execute("SELECT user_id FROM Story WHERE story_id = %s", (story_id,))
