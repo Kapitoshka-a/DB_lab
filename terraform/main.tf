@@ -428,12 +428,12 @@ resource "aws_appautoscaling_policy" "scale_in_policy" {
 resource "aws_cloudwatch_metric_alarm" "scale_out_alarm" {
   alarm_name          = "ecs-scale-out-alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = "10" #60
+  period              = "60" #60
   statistic           = "Average"
-  threshold           = "10" #75
+  threshold           = "3" #75
   alarm_description   = "Alarm for scaling out ECS service"
   dimensions = {
     ClusterName = aws_ecs_cluster.my_cluster.name
@@ -452,7 +452,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_in_alarm" {
   namespace           = "AWS/ECS"
   period              = "60"
   statistic           = "Average"
-  threshold           = "25"
+  threshold           = "3" #25
   alarm_description   = "Alarm for scaling in ECS service"
   dimensions = {
     ClusterName = aws_ecs_cluster.my_cluster.name
